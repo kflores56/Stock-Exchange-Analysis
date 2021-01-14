@@ -1,0 +1,115 @@
+Sub StockData()
+
+'Set Variables for Worksheets
+Dim CurrentWS As Worksheet
+Dim Need_Summary_Table_Header As Boolean
+
+'Set Header flag
+Need_Summary_Table_Header = False
+
+'Loop through all worksheets
+For Each CurrentWS In Worksheets
+
+    'Set Variables for holding ticker name
+    Dim Ticker_Name As String
+    Ticker_Name = " "
+    
+    'Set Variable for holding total volume
+    Dim Total_Volume, Opening_Price, Closing_Price, Yearly_Change, Percent_Change As Double
+    Total_Volume = 0
+    Opening_Price = 0
+    Closing_Price = 0
+    Yearly_Change = 0
+    Percent_Change = 0
+    
+    'Keep track of all ticker information
+    Dim Summary_Table_Row As Integer
+    Summary_Table_Row = 2
+    
+    'Set Variable for Last Row
+    Dim LastRow As Long
+    Dim i As Long
+    
+    LastRow = CurrentWS.Cells(Rows.Count, 1).End(xlUp).Row
+    
+        ' Set Headers for next worksheets
+        If Need_Summary_Table_Header Then
+            
+            ' Set Titles for the Summary Table for current worksheet
+            CurrentWS.Range("I1").Value = "Ticker Symbol"
+            CurrentWS.Range("J1").Value = "Yearly Change"
+            CurrentWS.Range("K1").Value = "Percent Change"
+            CurrentWS.Range("L1").Value = "Total Stock Volume"
+        
+        Else
+            
+            'Reset flag for the rest of worksheets
+            Need_Summary_Table_Header = True
+            
+        End If
+    
+    'Set inital open price
+    Opening_Price = CurrentWS.Cells(2, 3).Value
+    
+    ' Loop through all ticker names
+    For i = 2 To LastRow
+    
+        'Check to see if still within the same ticker name
+        If CurrentWS.Cells(i + 1, 1).Value <> CurrentWS.Cells(i, 1).Value Then
+        
+            'Set Ticker Name & Print Ticker Name to summary table
+            Ticker_Name = CurrentWS.Cells(i, 1).Value
+            CurrentWS.Range("I" & Summary_Table_Row).Value = Ticker_Name
+            
+            'Add total volume & add volume total to summary table
+            Total_Volume = Total_Volume + CurrentWS.Cells(i, 7).Value
+            CurrentWS.Range("L" & Summary_Table_Row).Value = Total_Volume
+            
+             'Find closing price
+            Closing_Price = CurrentWS.Cells(i, 6).Value
+            
+            'Find Yearly Change
+            Yearly_Change = Closing_Price - Opening_Price
+            CurrentWS.Range("J" & Summary_Table_Row).Value = Yearly_Change
+            
+            'Find Percent Change
+            If Opening_Price <> 0 Then
+                Percent_Change = (Yearly_Change / Opening_Price) * 100
+            End If
+            
+            'Add Percent Chanage to summary table
+            CurrentWS.Range("K" & Summary_Table_Row).Value = Percent_Change & "%"
+            
+                If Yearly_Change > 0 Then
+                    CurrentWS.Range("J" & Summary_Table_Row).Interior.Color = vbGreen
+                    
+                    Else
+                    CurrentWS.Range("J" & Summary_Table_Row).Interior.Color = vbRed
+                    
+                End If
+            
+            'Add next row to summary table
+            Summary_Table_Row = Summary_Table_Row + 1
+            
+            'Resets
+            Total_Volume = 0
+            Closing_Price = 0
+            Yearly_Change = 0
+            Percent_Change = 0
+            
+            'Find next opening price
+            Opening_Price = CurrentWS.Cells(i + 1, 3).Value
+            
+        Else
+            
+            'Add to volume total
+            Total_Volume = Total_Volume + CurrentWS.Cells(i, 7).Value
+        
+        End If
+        
+      Next i
+
+    Next CurrentWS
+
+End Sub
+
