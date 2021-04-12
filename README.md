@@ -1,5 +1,4 @@
-# VBA-challenge
-The VBA of Wall Street
+# Stock Exchange Analysis
 
 The following script will, with one run, loop through all data on all sheets and provide the following in a summary table:
   - The ticker symbol 
